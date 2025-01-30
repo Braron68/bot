@@ -1,31 +1,40 @@
 import discord
-from settings  import settings
 from bot_logic import gen_pass
 from bot_logic import gen_emodji
+from discord.ext import commands 
+#sm
 # La variable intents almacena los privilegios del bot
 intents = discord.Intents.default()
 # Activar el privilegio de lectura de mensajes
 intents.message_content = True
 # Crear un bot en la variable cliente y transferirle los privilegios
-client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix="$",intents=intents)
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f'Hemos iniciado sesión como {client.user}')
+    print(f'Hemos iniciado sesión como {bot.user}')
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    if message.content.startswith('$hello'):
-        await message.channel.send("Hi!")
-    elif message.content.startswith('$bye'):
-        await message.channel.send("🙌")
-    elif message.content.startswith('$password'):
-        await message.channel.send(gen_pass(10))
-    elif message.content.startswith('$smile'):
-        await message.channel.send(gen_emodji())
-    else:
-        await message.channel.send(message.content)
+@bot.command()
+async def hello(ctx):
+    await ctx.send("Hola")
+
+@bot.command()
+async def bye(ctx):
+    await ctx.send(("✌️"))
+
+@bot.command()
+async def password(ctx, longitud: int):
+    await ctx.send(gen_pass(longitud))
+
+@bot.group()
+async def cool(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send(f'No, {ctx.subcommand_passed} is not cool')
+
+
+@cool.command(name='bot')
+async def _bot(ctx):
+    await ctx.send('Yes, the bot is cool.')
+
 
 
